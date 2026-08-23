@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    name: Typecheck & Build
+    runs-on: ubuntu-latest
+
+    env:
+      # Real Supabase credentials should be added as repository secrets
+      # (Settings → Secrets and variables → Actions). Falling back to
+      # placeholders keeps CI green for typecheck/build even before the
+      # project is wired up — no live Supabase calls happen at build time.
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co' }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-anon-key' }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-service-role-key' }}
+      NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET: nuvemx-files
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+      NEXT_PUBLIC_APP_NAME: NuvemX
+      DEFAULT_STORAGE_QUOTA_BYTES: "5368709120"
+      MAX_UPLOAD_SIZE_BYTES: "2147483648"
+      TRASH_RETENTION_DAYS: "30"
+      APP_SECRET: ${{ secrets.APP_SECRET || 'ci-placeholder-secret-not-for-production' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
