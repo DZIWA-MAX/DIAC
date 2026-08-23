@@ -1,66 +1,75 @@
 <div align="center">
 
-# Diac
+# NuvemX
 
+**Seus arquivos. Sua nuvem. Sua liberdade.**
 
-[![License: UNLICENSED](https://img.shields.io/badge/License-UNLICENSED-blue.svg?style=for-the-badge)](https://opensource.org/licenses/UNLICENSED)
-
-[🐛 Report Bug](https://github.com/Dziwa-Max/diac/issues) · [✨ Request Feature](https://github.com/Dziwa-Max/diac/issues)
+Plataforma de armazenamento em nuvem — simples, rápida e segura — para pessoas e pequenas
+empresas, com arquitetura pronta desde o início para revenda de espaço (SaaS multi-tenant).
 
 </div>
 
 ---
 
-## 📋 Table of Contents
+## Stack
 
-- [🚀 Installation](#installation)
-- [💻 Usage](#usage)
-- [✨ Features](#features)
-- [🤝 Contributing](#contributing)
-- [📄 License](#license)
-- [👤 Contact](#contact)
+- **Next.js 14** (App Router) + TypeScript + Tailwind CSS
+- **Supabase**: autenticação, Postgres (com Row Level Security) e Storage para os arquivos
+- Nenhum conteúdo de arquivo é salvo no banco — o Postgres guarda **apenas metadados**
+  (`user_id/folder_id/nome`); o binário fica em um bucket **privado** do Supabase Storage,
+  sempre acessado via signed URLs de curta duração
+- Interface com i18n (Português / English)
 
-## 🚀 Installation
+## Configuração
 
-```bash
-git clone https://github.com/Dziwa-Max/diac.git
-cd diac
-npm install
+1. Crie um projeto em [supabase.com](https://supabase.com).
+2. Rode as migrações em `supabase/migrations/` (na ordem) via SQL editor do Supabase ou
+   `supabase db push` — elas criam as tabelas, RLS, funções auxiliares, o bucket de storage
+   privado (`nuvemx-files`) e os 4 planos iniciais (Free/Starter/Pro/Business).
+3. Copie `.env.example` para `.env.local` e preencha com as chaves do seu projeto Supabase
+   (URL, anon key e **service role key** — esta última nunca deve ir para o frontend; é usada
+   apenas em rotas de API server-side, como o acesso público a links de compartilhamento).
+4. `npm install`
+5. `npm run dev`
+
+## Segurança — decisões de arquitetura
+
+- **Isolamento por usuário**: toda tabela sensível tem RLS com `user_id = auth.uid()`. Um
+  usuário não consegue ler/escrever dados de outro trocando um ID na URL — a verificação
+  acontece no Postgres, não na interface.
+- **Storage**: os objetos ficam em `user_id/folder_id/arquivo` dentro de um bucket privado;
+  as policies do Storage também exigem que o primeiro segmento do caminho seja o próprio
+  `auth.uid()`.
+- **Upload**: a validação de tamanho, extensão e cota de armazenamento é sempre refeita no
+  backend (`/api/files/upload`), mesmo que o frontend já tenha validado — o frontend nunca é
+  fonte de verdade para segurança.
+- **Compartilhamento**: links usam token opaco + signed URL de poucos minutos, nunca uma URL
+  pública permanente. Suportam senha (hash com bcrypt), expiração e revogação.
+- **Admin**: o painel `/admin` não tem acesso de leitura a arquivos/pastas de outros usuários
+  (sem policy de RLS para isso) — apenas estatísticas agregadas via uma função Postgres
+  dedicada (`admin_get_platform_stats`), que nunca retorna conteúdo individual.
+- **Auditoria**: ações sensíveis (login, upload, exclusão, criação/revogação de link, ações
+  administrativas) são registradas em `security_logs`.
+
+## Estrutura
+
+```
+supabase/migrations/   Schema, RLS, funções e seed dos planos
+src/app/                Rotas (App Router)
+src/app/(app)/          Área logada: dashboard, files, recent, favorites, shared, trash, settings
+src/app/admin/          Painel administrativo (role = admin)
+src/app/api/            Route handlers (upload, shares, admin, settings, trash)
+src/components/         UI, landing page, dashboard, admin
+src/lib/services/       Regras de negócio (storage, files, plans, security)
+src/lib/supabase/       Clientes Supabase (browser / server / admin-service-role)
 ```
 
-## 💻 Usage
+## Roadmap
 
-```bash
-npm start
-```
+Já implementado: cadastro, login, recuperação de senha, dashboard, pastas, upload real,
+download real, lixeira com restauração, pesquisa, compartilhamento com senha/expiração,
+controle de armazenamento por plano, RLS completa, painel administrativo, i18n PT/EN.
 
-## ✨ Features
-
-- ✅ Feature 1
-- ✅ Feature 2
-- ✅ Feature 3
-
-## 🤝 Contributing
-
-Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
-
-1. Fork the project
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📄 License
-
-Distributed under the UNLICENSED License. See `LICENSE` for more information.
-
-## 👤 Contact
-
-**Victor Joao**
-- GitHub: [@Dziwa-Max](https://github.com/Dziwa-Max)
-- Email: [vjoao@diac.co.mz](mailto:vjoao@diac.co.mz)
-- Project: [https://github.com/Dziwa-Max/diac](https://github.com/Dziwa-Max/diac)
-
----
-
-<div align="center">Made with ❤️ by Victor Joao</div>
+Preparado (schema e telas prontos, integração externa pendente): pagamentos recorrentes
+(Stripe/Mercado Pago — ver `payments`/`subscriptions`/`invoices`), 2FA, login social
+(Google/Apple/GitHub).
