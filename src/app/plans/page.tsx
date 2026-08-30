@@ -6,10 +6,13 @@ import { listActivePlans } from "@/lib/services/plans";
 import type { Plan } from "@/types/database";
 
 export default async function PlansPage() {
-  const supabase = createServerSupabaseClient();
   let plans: Plan[] = [];
   try {
-    plans = await listActivePlans(supabase);
+    // Creating the client is itself throwable — it rejects missing
+    // Supabase credentials — so it belongs inside the guard. This page
+    // is public marketing, and an unreachable database should degrade to
+    // the message below, never a 500.
+    plans = await listActivePlans(createServerSupabaseClient());
   } catch {
     plans = [];
   }
