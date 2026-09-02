@@ -73,3 +73,17 @@ controle de armazenamento por plano, RLS completa, painel administrativo, i18n P
 Preparado (schema e telas prontos, integração externa pendente): pagamentos recorrentes
 (Stripe/Mercado Pago — ver `payments`/`subscriptions`/`invoices`), 2FA, login social
 (Google/Apple/GitHub).
+
+## Licença
+
+Este projeto é distribuído sob a licença [MIT](LICENSE).
+
+## Contribuindo
+
+Contribuições são bem-vindas! Veja o [guia de contribuição](CONTRIBUTING.md) e o
+[código de conduta](CODE_OF_CONDUCT.md).
+
+## Segurança
+
+Para reportar uma vulnerabilidade, siga as instruções em [`SECURITY.md`](SECURITY.md) — não abra
+uma issue pública.

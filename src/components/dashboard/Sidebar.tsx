@@ -12,6 +12,7 @@ import {
   Settings,
   ArrowUpCircle,
   Shield,
+  ShieldCheck,
 } from "lucide-react";
 import { formatBytes } from "@/lib/storage-shared";
 import type { Profile } from "@/types/database";
@@ -29,6 +30,7 @@ const NAV: NavItem[] = [
   { href: "/favorites", label: "Favoritos", icon: Star },
   { href: "/shared", label: "Compartilhados", icon: Share2 },
   { href: "/trash", label: "Lixeira", icon: Trash2 },
+  { href: "/vpn", label: "VPN", icon: ShieldCheck },
   { href: "/settings", label: "Configurações", icon: Settings },
 ];
 

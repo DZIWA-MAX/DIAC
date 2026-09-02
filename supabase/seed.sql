@@ -1,0 +1,5 @@
+-- Seed data for local development.
+-- The actual seed data (default plans) lives in the migrations
+-- themselves (supabase/migrations/0001_init.sql), so this file is
+-- intentionally empty — it only exists because `supabase db reset`
+-- expects db.seed.sql_paths to resolve to a real file.

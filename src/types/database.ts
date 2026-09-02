@@ -30,6 +30,8 @@ export interface Plan {
   features: string[];
   active: boolean;
   sort_order: number;
+  vpn_enabled: boolean;
+  vpn_device_limit: number;
 }
 
 export interface Folder {
@@ -97,6 +99,55 @@ export interface Payment {
   provider_payment_id: string | null;
   created_at: string;
 }
+
+export interface VpnServer {
+  id: string;
+  name: string;
+  endpoint: string;
+  public_key: string;
+  subnet: string;
+  dns: string;
+  allowed_ips: string;
+  sync_secret_hash: string;
+  last_sync_at: string | null;
+  active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface VpnProfile {
+  id: string;
+  user_id: string;
+  server_id: string;
+  name: string;
+  public_key: string;
+  private_key_enc: string;
+  preshared_key_enc: string;
+  address_index: number;
+  token: string;
+  link_expires_at: string;
+  revoked_at: string | null;
+  last_handshake_at: string | null;
+  rx_bytes: number;
+  tx_bytes: number;
+  created_at: string;
+  updated_at: string;
+}
+
+/** The subset of VpnProfile the browser is allowed to see. */
+export type VpnProfilePublic = Pick<
+  VpnProfile,
+  | "id"
+  | "name"
+  | "server_id"
+  | "address_index"
+  | "revoked_at"
+  | "last_handshake_at"
+  | "rx_bytes"
+  | "tx_bytes"
+  | "link_expires_at"
+  | "created_at"
+> & { address?: string; server_name?: string };
 
 export interface SecurityLog {
   id: string;

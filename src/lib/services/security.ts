@@ -21,6 +21,11 @@ export type SecurityAction =
   | "admin.user_blocked"
   | "admin.user_unblocked"
   | "admin.plan_changed"
+  | "vpn.profile_create"
+  | "vpn.profile_revoke"
+  | "vpn.config_download"
+  | "vpn.link_regenerate"
+  | "vpn.node_sync"
   | "data.export"
   | "account.delete_requested"
   | "access.denied";
