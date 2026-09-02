@@ -115,11 +115,12 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // api/share, api/vpn/config and api/vpn/nodes carry their own auth
-    // (opaque token / node bearer secret) and are reached without a
-    // session — a phone importing a VPN config is not logged in, and the
-    // sync agent is a machine. Running the session middleware on them
-    // only costs a wasted auth round-trip on every node poll.
-    "/((?!_next/static|_next/image|favicon.ico|api/share|api/vpn/config|api/vpn/nodes|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    // api/share, api/vpn/config, api/vpn/nodes and api/webhooks carry
+    // their own auth (opaque token, node bearer secret, HMAC signature)
+    // and are reached without a session — a phone importing a VPN config
+    // is not logged in, the sync agent is a machine, and Stripe is a
+    // third party. Running the session middleware on them only costs a
+    // wasted auth round-trip on every call.
+    "/((?!_next/static|_next/image|favicon.ico|api/share|api/vpn/config|api/vpn/nodes|api/webhooks|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };

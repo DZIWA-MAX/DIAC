@@ -149,6 +149,32 @@ export type VpnProfilePublic = Pick<
   | "created_at"
 > & { address?: string; server_name?: string };
 
+export type CheckoutStatus = "pending" | "completed" | "expired" | "canceled";
+
+export interface CheckoutSessionRecord {
+  id: string;
+  user_id: string;
+  plan_id: string;
+  amount_cents: number;
+  currency: string;
+  provider: string;
+  provider_session_id: string | null;
+  status: CheckoutStatus;
+  expires_at: string;
+  completed_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PaymentEvent {
+  id: string;
+  provider: string;
+  provider_event_id: string;
+  event_type: string;
+  payload: Record<string, unknown>;
+  processed_at: string;
+}
+
 export interface SecurityLog {
   id: string;
   user_id: string | null;
