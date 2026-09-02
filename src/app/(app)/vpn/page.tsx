@@ -230,6 +230,10 @@ export default function VpnPage() {
         <form onSubmit={create}>
           <TextField
             label="Nome do dispositivo"
+            // TextField derives the input's id from `name`; without it the
+            // label's htmlFor is undefined and the two are never associated.
+            name="name"
+            type="text"
             placeholder="Ex.: Meu celular"
             value={deviceName}
             onChange={(e) => setDeviceName(e.target.value)}
