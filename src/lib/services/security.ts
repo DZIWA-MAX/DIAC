@@ -26,6 +26,10 @@ export type SecurityAction =
   | "vpn.config_download"
   | "vpn.link_regenerate"
   | "vpn.node_sync"
+  | "checkout.session_create"
+  | "payment.confirmed"
+  | "payment.webhook_rejected"
+  | "payment.webhook_unknown_session"
   | "data.export"
   | "account.delete_requested"
   | "access.denied";
