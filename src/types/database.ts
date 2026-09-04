@@ -32,6 +32,7 @@ export interface Plan {
   sort_order: number;
   vpn_enabled: boolean;
   vpn_device_limit: number;
+  payment_methods: string[];
 }
 
 export interface Folder {

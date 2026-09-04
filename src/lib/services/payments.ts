@@ -11,7 +11,7 @@ import type { Plan } from "@/types/database";
  * qualquer pessoa abre o DevTools e compra o plano Business por 1 centavo.
  */
 
-export type PaymentProvider = "stripe";
+export type PaymentProvider = "mpesa" | "emola" | "card" | "stripe";
 
 export interface CheckoutSession {
   id: string;
@@ -21,6 +21,9 @@ export interface CheckoutSession {
   currency: string;
   provider: string;
   provider_session_id: string | null;
+  provider_reference: string | null;
+  method: "mpesa" | "emola" | "card";
+  payer_msisdn: string | null;
   status: "pending" | "completed" | "expired" | "canceled";
   expires_at: string;
   completed_at: string | null;
@@ -63,7 +66,9 @@ export async function resolvePayablePlan(planCode: string): Promise<Plan> {
 export async function createCheckoutSession(params: {
   userId: string;
   plan: Plan;
-  provider: PaymentProvider;
+  provider: string;
+  method: "mpesa" | "emola" | "card";
+  msisdn?: string;
 }): Promise<CheckoutSession> {
   const admin = createAdminSupabaseClient();
   const { data, error } = await admin
@@ -74,6 +79,8 @@ export async function createCheckoutSession(params: {
       amount_cents: params.plan.price_cents,
       currency: params.plan.currency,
       provider: params.provider,
+      method: params.method,
+      payer_msisdn: params.msisdn ?? null,
     })
     .select("*")
     .single<CheckoutSession>();
@@ -84,12 +91,16 @@ export async function createCheckoutSession(params: {
 
 export async function attachProviderSession(
   sessionId: string,
-  providerSessionId: string
+  providerSessionId: string,
+  providerReference?: string
 ): Promise<void> {
   const admin = createAdminSupabaseClient();
   const { error } = await admin
     .from("checkout_sessions")
-    .update({ provider_session_id: providerSessionId })
+    .update({
+      provider_session_id: providerSessionId,
+      ...(providerReference ? { provider_reference: providerReference } : {}),
+    })
     .eq("id", sessionId);
   if (error) throw error;
 }
